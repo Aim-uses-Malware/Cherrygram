@@ -76,7 +76,7 @@ jobs:
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > ${{ github.workspace }}/release.jks
 
-      # ─── Build ───────────────────────────────────────────────────────────────
+# ─── Build ───────────────────────────────────────────────────────────────
       - name: Make gradlew executable
         run: chmod +x gradlew
 
@@ -86,13 +86,13 @@ jobs:
           KEY_ALIAS:      ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD:   ${{ secrets.KEY_PASSWORD }}
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          # Ограничиваем аппетит компилятора, чтобы уложиться в лимиты раннера
+          GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx3072m -XX:MaxMetaspaceSize=512m"
         run: |
           FLAVOR="${{ github.event.inputs.flavor || env.DEFAULT_FLAVOR }}"
           ./gradlew \
             :TMessagesProj_${FLAVOR}:assembleRelease \
-            --no-daemon \
             --stacktrace \
-            -Pandroid.ndkVersion="25.2.9519653" \
             -Pandroid.injected.signing.store.file="$KEYSTORE_PATH" \
             -Pandroid.injected.signing.store.password="$STORE_PASSWORD" \
             -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
@@ -103,11 +103,11 @@ jobs:
         if: ${{ env.KEYSTORE_BASE64 == '' }}
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx3072m -XX:MaxMetaspaceSize=512m"
         run: |
           FLAVOR="${{ github.event.inputs.flavor || env.DEFAULT_FLAVOR }}"
           ./gradlew \
             :TMessagesProj_${FLAVOR}:assembleDebug \
-            --no-daemon \
             --stacktrace
 
       # ─── Найти APK ───────────────────────────────────────────────────────────
