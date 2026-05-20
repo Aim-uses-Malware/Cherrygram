@@ -41,15 +41,15 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # ─── NDK ─────────────────────────────────────────────────────────────────
+# ─── NDK ─────────────────────────────────────────────────────────────────
       - name: Set up NDK
         uses: android-actions/setup-android@v3
         with:
-          packages: 'ndk;25.2.9519653' # Версия r25c в репозитории Google SDK
+          packages: 'ndk;25.2.9519653'
 
       - name: Set NDK env variable
         run: |
-          echo "ANDROID_NDK_HOME=${{ momentum.android.sdk-root }}/ndk/25.2.9519653" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
 
       # ─── Gradle cache ────────────────────────────────────────────────────────
       - name: Cache Gradle dependencies
