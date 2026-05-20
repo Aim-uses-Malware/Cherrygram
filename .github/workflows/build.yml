@@ -42,13 +42,18 @@ jobs:
           distribution: 'temurin'
 
 # ─── NDK ─────────────────────────────────────────────────────────────────
-      - name: Set up NDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'ndk;25.2.9519653'
-
-      - name: Set NDK env variable
+      - name: Install Android NDK
         run: |
+          # Выделяем память для Java, чтобы sdkmanager не падал в silent-режиме
+          export DEFAULT_JVM_OPTS="-Xmx4g"
+          
+          # Принимаем лицензии
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
+          
+          # Устанавливаем нужные версии NDK
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;25.2.9519653" "ndk;21.4.7075529"
+          
+          # Прописываем переменные окружения
           echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
 
       # ─── Gradle cache ────────────────────────────────────────────────────────
@@ -87,6 +92,7 @@ jobs:
             :TMessagesProj_${FLAVOR}:assembleRelease \
             --no-daemon \
             --stacktrace \
+            -Pandroid.ndkVersion="25.2.9519653" \
             -Pandroid.injected.signing.store.file="$KEYSTORE_PATH" \
             -Pandroid.injected.signing.store.password="$STORE_PASSWORD" \
             -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
