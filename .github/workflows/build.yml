@@ -43,10 +43,13 @@ jobs:
 
       # ─── NDK ─────────────────────────────────────────────────────────────────
       - name: Set up NDK
-        uses: android/setup-ndk@v1
+        uses: android-actions/setup-android@v3
         with:
-          ndk-version: r25c          # версия NDK, которую использует проект
-          add-to-path: true
+          packages: 'ndk;25.2.9519653' # Версия r25c в репозитории Google SDK
+
+      - name: Set NDK env variable
+        run: |
+          echo "ANDROID_NDK_HOME=${{ momentum.android.sdk-root }}/ndk/25.2.9519653" >> $GITHUB_ENV
 
       # ─── Gradle cache ────────────────────────────────────────────────────────
       - name: Cache Gradle dependencies
